@@ -14,7 +14,6 @@ public class Dijkstra {
                 graph[i][j] = 0;
             }
         }
-
         addEdge(graph, 0, 1, 4);
         addEdge(graph, 0, 7, 8);
         addEdge(graph, 1, 2, 8);
@@ -32,20 +31,27 @@ public class Dijkstra {
 
         int src = 0;
         int[] dist = new int[V];
+        int[] pred = new int[V];
         boolean[] visited = new boolean[V];
 
         for (int i = 0; i < V; i++) {
             dist[i] = INF;
+            pred[i] = -1;
             visited[i] = false;
         }
         dist[src] = 0;
 
-        for (int count = 0; count < V - 1; count++) {
+        System.out.println("Step 0: Initialization.\n");
+        printTable(dist, pred, visited);
+        printQueue(dist, visited);
+
+        int step = 1;
+        for (int count = 0; count < V; count++) {
 
             int u = -1;
             int min = INF;
             for (int i = 0; i < V; i++) {
-                if (visited[i] == false && dist[i] < min) {
+                if (!visited[i] && dist[i] < min) {
                     min = dist[i];
                     u = i;
                 }
@@ -56,22 +62,70 @@ public class Dijkstra {
             visited[u] = true;
 
             for (int v = 0; v < V; v++) {
-                if (graph[u][v] != 0 && visited[v] == false) {
+                if (graph[u][v] != 0 && !visited[v]) {
                     if (dist[u] + graph[u][v] < dist[v]) {
                         dist[v] = dist[u] + graph[u][v];
+                        pred[v] = u;
                     }
                 }
             }
+            System.out.println("\nStep " + step + ": Extract-Min returns vertex " + u +
+                    " (d[" + u + "] = " + dist[u] + "), color it black, relax its edges.\n");
+            printTable(dist, pred, visited);
+            printQueue(dist, visited);
+
+            step++;
         }
 
-        System.out.println("Vertex \t Distance from Source");
+        System.out.println("\nFinal shortest distances from source 0:");
         for (int i = 0; i < V; i++) {
-            System.out.println(i + "\t" + dist[i]);
+            System.out.println("d[" + i + "] = " + dist[i] + "   pred[" + i + "] = " + (pred[i] == -1 ? "nil" : pred[i]));
         }
     }
 
     static void addEdge(int[][] graph, int u, int v, int w) {
         graph[u][v] = w;
         graph[v][u] = w;
+    }
+
+    static void printTable(int[] dist, int[] pred, boolean[] visited) {
+        System.out.print("v        | ");
+        for (int i = 0; i < V; i++) System.out.printf("%-5d", i);
+        System.out.println();
+
+        System.out.print("d[v]     | ");
+        for (int i = 0; i < V; i++) {
+            String val = dist[i] >= INF ? "inf" : String.valueOf(dist[i]);
+            System.out.printf("%-5s", val);
+        }
+        System.out.println();
+
+        System.out.print("pred[v]  | ");
+        for (int i = 0; i < V; i++) {
+            String val = pred[i] == -1 ? "nil" : String.valueOf(pred[i]);
+            System.out.printf("%-5s", val);
+        }
+        System.out.println();
+
+        System.out.print("color[v] | ");
+        for (int i = 0; i < V; i++) {
+            System.out.printf("%-5s", visited[i] ? "B" : "W");
+        }
+        System.out.println();
+    }
+
+    static void printQueue(int[] dist, boolean[] visited) {
+        System.out.print("\nPriority Queue:  v    | ");
+        for (int i = 0; i < V; i++) {
+            if (!visited[i]) System.out.printf("%-5d", i);
+        }
+        System.out.print("\n                 d[v] | ");
+        for (int i = 0; i < V; i++) {
+            if (!visited[i]) {
+                String val = dist[i] >= INF ? "inf" : String.valueOf(dist[i]);
+                System.out.printf("%-5s", val);
+            }
+        }
+        System.out.println("\n");
     }
 }
